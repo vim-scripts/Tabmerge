@@ -5,14 +5,20 @@
 " Distributed under the terms of the Vim license.  See ":help license".
 
 " Usage:
-"  :Tabmerge [tab number] [top|bottom]
 "
-" The tab bumber can be "$" for the last tab.  If the tab number isn't
+" :Tabmerge [tab number] [top|bottom|left|right]
+"
+" The tab number can be "$" for the last tab.  If the tab number isn't
 " specified the tab to the right of the current tab is merged.  If there
 " is no right tab, the left tab is merged.
 "
 " The location specifies where in the current tab to merge the windows.
 " Defaults to "top".
+"
+" Limitations:
+"
+" Vertical windows are merged as horizontal splits.  Doing otherwise would be
+" nearly impossible.
 
 if v:version < 700
 	echoerr "Tabmerge.vim requires at least Vim version 7"
@@ -21,7 +27,7 @@ endif
 
 command! -nargs=* Tabmerge call Tabmerge(<f-args>)
 
-function! Tabmerge(...)
+function! Tabmerge(...)  " {{{1
 	if a:0 > 2
 		echohl ErrorMsg
 		echo "Too many arguments"
@@ -76,9 +82,13 @@ function! Tabmerge(...)
 	endif
 
 	if where =~? '^t\(op\)\?$'
-		let where = 'top'
+		let where = 'topleft'
 	elseif where =~? '^b\(ot\(tom\)\?\)\?$'
-		let where = 'bot'
+		let where = 'botright'
+	elseif where =~? '^l\(eft\)\?$'
+		let where = 'leftabove vertical'
+	elseif where =~? '^r\(ight\)\?$'
+		let where = 'rightbelow vertical'
 	else
 		echohl ErrorMsg
 		echo "Invalid location: " . a:2
@@ -101,3 +111,5 @@ function! Tabmerge(...)
 
 	let &switchbuf = save_switchbuf
 endfunction
+
+" vim:fdm=marker:fdc=2:fdl=1:
